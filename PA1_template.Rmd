@@ -3,23 +3,266 @@ title: "Reproducible Research: Peer Assessment 1"
 output: 
   html_document:
     keep_md: true
+
 ---
 
+##Introduction
+
+It is now possible to collect a large amount of data about personal movement using activity monitoring devices such as a Fitbit, Nike Fuelband, or Jawbone Up. These type of devices are part of the “quantified self” movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. But these data remain under-utilized both because the raw data are hard to obtain and there is a lack of statistical methods and software for processing and interpreting the data.
+
+This assignment makes use of data from a personal activity monitoring device. This device collects data at 5 minute intervals through out the day. The data consists of two months of data from an anonymous individual collected during the months of October and November, 2012 and include the number of steps taken in 5 minute intervals each day.
+
+
+The data for this assignment was downloaded from the course web site and placed at 
+
+~/Downloads/activity.csv
+
+The variables included in this dataset are:
+
+steps: Number of steps taking in a 5-minute interval (missing values are coded as NA)
+
+date: The date on which the measurement was taken in YYYY-MM-DD format
+
+interval: Identifier for the 5-minute interval in which measurement was taken
+
+The dataset is stored in a comma-separated-value (CSV) file and there are a total of 17,568 observations in this dataset.
+
+The Introductory text was taken directly from the class website with only a small variation:
+https://class.coursera.org/repdata-034/human_grading/view/courses/975147/assessments/3/submissions
+
+
+## Load a few really useful libraries
+
+```{r, echo = TRUE, results = "hide"}
+library(ggplot2)
+library(dplyr)
+library(data.table)
+library(lubridate)
+library(lattice) 
+```
 
 ## Loading and preprocessing the data
 
+First we are going to use the fread function from the data.table library read in the data.
 
+```{r, echo = TRUE, results = "hide"}
+d <- fread("~/Downloads/activity.csv", header=TRUE)
+```
+
+
+Once the data is loaded we are going to select only the columns that we need at this point (steps and date), we are then going to group the data by the date column, we are then going to transform the dataframe so that the steps column now contains the total number of steps for that day.
+
+
+
+```{r, echo = TRUE}
+dd <- d  %>%  select(steps, date) %>% group_by(date) %>% summarise( steps = sum(steps, na.rm = TRUE))
+
+dd
+```
 
 ## What is mean total number of steps taken per day?
 
 
 
+As we are asked to do we are going to now graph a histogram of the number of steps taken in a day.  I have chosen to use the qplot funcion from ggplot2 to make the graph.
+
+```{r, echo = TRUE, results = "hide"}
+qplot(x=steps, data=dd, geom="histogram")
+
+```
+
+
+The mean of the daily total number of steps is
+```{r, echo = TRUE}
+
+mean(dd$steps)
+
+```
+
+The median of the daily total number of steps is
+```{r, echo = TRUE}
+
+median(dd$steps)
+
+```
+
+
+
+
+
+
+
+
+
+
+
 ## What is the average daily activity pattern?
+
+We don't need to load the data in again.  We are going to select only the columns that we need at this point (steps and interval), we are then going to group the data by the interval column, we are then going to transform the dataframe so that the steps column now contains the total number of steps for that interval.
+
+
+```{r, echo = TRUE}
+ee <- d  %>%  select(steps, interval) %>% group_by(interval) %>% summarise( steps = mean(steps, na.rm = TRUE))
+
+ee
+```
+
+And we can then plot it to see what an average day looks like:
+
+```{r, echo = TRUE}
+qplot(x=interval, y=steps, data=ee, geom="line")
+```
+
+
+
+
+
+The interval with the greatest average number of steps can be found using the following:
+
+```{r, echo = TRUE}
+ee %>% arrange(desc(steps)) %>% slice( 1) %>% select(interval)
+```
+
+
+
+
+
+
+
 
 
 
 ## Imputing missing values
 
+In this section of the assignment we are first asked to "calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)." Thus, I am going to subset the dataframe so that only the rows that have non-NA values are kept, I am then going to use the length function in finding the difference between the original data and the subsetted data.
+
+```{r, echo = TRUE}
+b <- d[complete.cases(d),]
+
+number_of_NAs <- length(d$steps) - length(b$steps)
+
+number_of_NAs
+```
+
+
+We are then asked to "Devise a strategy for filling in all of the missing values in the dataset."  I am going to follow the recommendation where if an interval is missing a value in steps I will replace the NA with the "mean for that 5-minute interval."  To do this I will create the function correcting_steps.
+
+```{r, echo = TRUE}
+correcting_steps <- function(intval, step){
+            if (is.na(step)){
+                 xy <-  filter(ee, interval == intval) #using the dataframe ee from earlier
+                 xyy <- xy$steps 
+                 x <- xyy[1]
+            }  else {
+                   x <- step
+            }
+x}
+```
+
+
+Applying the function to the steps data
+```{r, echo = TRUE}
+corrected_steps <- mapply(correcting_steps, d$interval, d$steps)
+```
+
+We now use cbind to attach corrected_steps to d.
+```{r, echo = TRUE}
+corrected_d <- cbind(d,corrected_steps)
+```
+
+
+
+
+
+Once the data is loaded we are going to select only the columns that we need at this point (steps and date), we are then going to group the data by the date column, we are then going to transform the dataframe so that the steps column now contains the total number of steps for that day.
+
+
+
+```{r, echo = TRUE}
+corrected_dd <- corrected_d  %>%  select(corrected_steps, date) %>% group_by(date) %>% summarise( steps = sum(corrected_steps, na.rm = TRUE))
+
+dd
+```
+
+
+
+
+
+
+
+
+Wwe are going to now graph a histogram of the number of steps taken in a day.  I have chosen to use the qplot funcion from ggplot2 to make the graph.
+
+```{r, echo = TRUE, results = "hide"}
+qplot(x=steps, data=corrected_dd, geom="histogram")
+
+```
+
+Comparing daily total number of steps histograms we see that by adding in the missing data the data goes from being a non-normal distribution to a more normal distribution.
+
+
+The mean of the daily total number of steps is
+```{r, echo = TRUE}
+mean(corrected_dd$steps)
+```
+
+The median of the daily total number of steps is
+```{r, echo = TRUE}
+median(corrected_dd$steps)
+```
+
+After the correction the mediam and mean values are much closer together.
+
+
+
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+I am going to start the original data, d, and then apply the function correcting_steps. The function wd will create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day. 
+
+
+```{r, echo = TRUE}
+wd <- function(x){
+   y <- weekdays(ymd(x))
+   
+   if (y == "Saturday"){
+       z <- "Weekend"
+    } else if (y == "Sunday"){
+       z <- "Weekend"
+    } else {
+       z <- "Weekday"
+    }
+z}
+```
+
+Using the wd function I am going to create a variable called day which will then be added to the original data frame using cbind.  Use of select, group_by, and summarise will transform the data into the desired structure.
+
+```{r, echo = TRUE}
+day <- simplify2array(lapply(d$date, wd))
+
+DAYS <- cbind(d, day) %>% select(interval, day, steps) %>% group_by(interval, day) %>% summarise( steps = mean(steps, na.rm = TRUE))
+```
+
+
+
+
+Below is a panel plot containing a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
+
+```{r, echo = TRUE}
+xyplot(steps~interval | day, data=DAYS, type = "l", layout=c(1,2))
+
+```
+
+
+Comparing the graphs shows that on the weekdays people get up earlier than on the weekends.  While the maximum number of steps is higher during the weekday, there tends to be more steps per time period on the weekends.
+
+
+
+
+
+
+
+
+
+
