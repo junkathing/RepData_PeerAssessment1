@@ -33,7 +33,7 @@ https://class.coursera.org/repdata-034/human_grading/view/courses/975147/assessm
 
 ## Load a few really useful libraries
 
-```{r, echo = TRUE, results = "hide"}
+```{r, echo = TRUE, results = "hide", comment="", warnings = FALSE,message = FALSE}
 library(ggplot2)
 library(dplyr)
 library(data.table)
@@ -71,7 +71,7 @@ qplot(x=steps, data=dd, geom="histogram")
 
 ```
 
-
+### Mean and Midean total steps
 The mean of the daily total number of steps is
 ```{r, echo = TRUE}
 

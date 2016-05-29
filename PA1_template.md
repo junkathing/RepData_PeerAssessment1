@@ -30,46 +30,20 @@ https://class.coursera.org/repdata-034/human_grading/view/courses/975147/assessm
 
 ```r
 library(ggplot2)
+```
+
+```
+Warning: package 'ggplot2' was built under R version 3.2.4
+```
+
+```r
 library(dplyr)
-```
-
-```
-## 
-## Attaching package: 'dplyr'
-## 
-## The following objects are masked from 'package:stats':
-## 
-##     filter, lag
-## 
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union
-```
-
-```r
 library(data.table)
-```
-
-```
-## 
-## Attaching package: 'data.table'
-## 
-## The following objects are masked from 'package:dplyr':
-## 
-##     between, last
-```
-
-```r
 library(lubridate)
 ```
 
 ```
-## 
-## Attaching package: 'lubridate'
-## 
-## The following objects are masked from 'package:data.table':
-## 
-##     hour, mday, month, quarter, wday, week, yday, year
+Warning: package 'lubridate' was built under R version 3.2.4
 ```
 
 ```r
@@ -127,12 +101,12 @@ qplot(x=steps, data=dd, geom="histogram")
 ```
 
 ```
-## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
 
-
+### Mean and Midean total steps
 The mean of the daily total number of steps is
 
 ```r
@@ -200,7 +174,7 @@ And we can then plot it to see what an average day looks like:
 qplot(x=interval, y=steps, data=ee, geom="line")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-8-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
 
 
@@ -324,10 +298,10 @@ qplot(x=steps, data=corrected_dd, geom="histogram")
 ```
 
 ```
-## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-15-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
 
 Comparing daily total number of steps histograms we see that by adding in the missing data the data goes from being a non-normal distribution to a more normal distribution.
 
@@ -397,7 +371,7 @@ Below is a panel plot containing a time series plot of the 5-minute interval (x-
 xyplot(steps~interval | day, data=DAYS, type = "l", layout=c(1,2))
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-20-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-20-1.png)<!-- -->
 
 
 Comparing the graphs shows that on the weekdays people get up earlier than on the weekends.  While the maximum number of steps is higher during the weekday, there tends to be more steps per time period on the weekends.
